@@ -12,9 +12,16 @@ export const Title = styled.h1`
   line-height: 56px;
 
   margin-top: 80px;
+
+  transition: color 0.4s;
+
+  &.dark {
+    color: #8a8a8a;
+  }
 `;
 
 export const Form = styled.form<FormProps>`
+  width: 100%;
   margin-top: 40px;
   max-width: 700px;
 
@@ -31,6 +38,8 @@ export const Form = styled.form<FormProps>`
 
     border: 2px solid #fff;
     border-right: 0;
+
+    transition: all 0.4s;
 
     ${(props) =>
       props.hasError &&
@@ -51,10 +60,33 @@ export const Form = styled.form<FormProps>`
     border: 0;
     color: #fff;
     font-weight: bold;
-    transition: background-color 0.2s;
+    transition: background-color 0.5s;
 
     &:hover {
       background: ${shade(0.2, '#04d361')};
+    }
+  }
+
+  &.dark {
+    input {
+      background-color: #333;
+      border-color: #333;
+
+      color: #ccc;
+
+      ${(props) =>
+        props.hasError &&
+        css`
+          border-color: #c53030;
+        `}
+
+      &::placeholder {
+        color: #6d6d6f;
+      }
+    }
+
+    button {
+      background: #e68200;
     }
   }
 `;
@@ -79,7 +111,7 @@ export const Repositories = styled.div`
 
     display: flex;
     align-items: center;
-    transition: transform 0.2s;
+    transition: all 0.4s;
 
     & + a {
       margin-top: 16px;
@@ -102,6 +134,7 @@ export const Repositories = styled.div`
       strong {
         font-size: 20px;
         color: #3d3d4d;
+        transition: color 0.4s;
       }
 
       p {
@@ -114,6 +147,102 @@ export const Repositories = styled.div`
     svg {
       margin-left: auto;
       color: #cbcbd6;
+      transition: color 0.4s;
     }
+  }
+
+  a:last-child {
+    margin-bottom: 64px;
+  }
+
+  &.dark a {
+    background-color: #333;
+  }
+
+  &.dark a div {
+    strong {
+      color: #c2bdb2;
+    }
+
+    p {
+      color: #575750;
+    }
+  }
+
+  &.dark a svg {
+    color: #999;
+  }
+`;
+
+export const DarkSwitcher = styled.div`
+  position: absolute;
+  right: 0;
+  margin: 0 16px;
+  display: flex;
+  align-items: center;
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 16px;
+    margin-left: 4px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: '';
+    height: 10px;
+    width: 10px;
+    left: 5px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider:before {
+    -webkit-transform: translateX(12px);
+    -ms-transform: translateX(12px);
+    transform: translateX(12px);
+  }
+
+  input:checked + .slider {
+    background-color: #e68200;
+  }
+`;
+
+export const Header = styled.header`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #3a3a3a;
+  transition: color 0.4s;
+
+  &.dark {
+    color: #8a8a8a;
   }
 `;

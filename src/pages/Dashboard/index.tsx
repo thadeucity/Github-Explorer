@@ -3,9 +3,25 @@ import { FiChevronRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
-import logoImg from '../../assets/logo.svg';
+import {
+  PortugueseText,
+  JapaneseText,
+  EnglishText,
+  GermanText,
+} from '../../lang/baseText';
 
-import { Title, Form, Repositories, Error } from './styles';
+import logoImg from '../../assets/logo.svg';
+import logoImgDark from '../../assets/logo_dark.svg';
+
+import DarkMode from '../../styles/global_dark';
+import {
+  Title,
+  Form,
+  Repositories,
+  Error,
+  DarkSwitcher,
+  Header,
+} from './styles';
 
 interface Repository {
   full_name: string;
@@ -16,9 +32,27 @@ interface Repository {
   };
 }
 
+interface LangObject {
+  dark: string;
+  dashTitle: string;
+  repoSearchPlaceHolder: string;
+  search: string;
+  notFound: string;
+}
+
 const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState('');
   const [inputError, setInputError] = useState('');
+
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const storedDarkModeInfo = localStorage.getItem('@githubExplorer:darkMode');
+
+    if (storedDarkModeInfo) {
+      return JSON.parse(storedDarkModeInfo);
+    }
+
+    return 0;
+  });
 
   const [repositories, setRepositories] = useState<Repository[]>(() => {
     const storedRepositories = localStorage.getItem(
@@ -31,12 +65,21 @@ const Dashboard: React.FC = () => {
     return [];
   });
 
-  useEffect(() => {
-    localStorage.setItem(
-      '@githubExplorer:repositories',
-      JSON.stringify(repositories),
-    );
-  }, [repositories]);
+  const [textLanguage, setTextLanguage] = useState<LangObject>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const lang = params.get('lang');
+
+    if (lang === 'pt') {
+      return PortugueseText;
+    }
+    if (lang === 'jp') {
+      return JapaneseText;
+    }
+    if (lang === 'ge') {
+      return GermanText;
+    }
+    return EnglishText;
+  });
 
   async function handleAddRepository(
     event: FormEvent<HTMLFormElement>,
@@ -59,32 +102,72 @@ const Dashboard: React.FC = () => {
 
       setInputError('');
     } catch (err) {
-      setInputError('Repository not found');
+      setInputError(textLanguage.notFound);
     }
   }
 
+  function toggleDarkMode(): void {
+    if (darkMode) {
+      setDarkMode(false);
+    } else {
+      setDarkMode(true);
+    }
+  }
+
+  useEffect(() => {
+    localStorage.setItem(
+      '@githubExplorer:repositories',
+      JSON.stringify(repositories),
+    );
+  }, [repositories]);
+
+  useEffect(() => {
+    localStorage.setItem('@githubExplorer:darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
   return (
     <>
-      <img src={logoImg} alt="Github Explorer Logo" />
-      <Title>Explore repositories on github</Title>
+      <Header className={darkMode ? 'dark' : ''}>
+        <img
+          src={darkMode ? logoImgDark : logoImg}
+          alt="Github Explorer Logo"
+        />
+        <DarkSwitcher>
+          {textLanguage.dark}
+          <label htmlFor="darkSelector" className="switch">
+            <input
+              type="checkbox"
+              id="darkSelector"
+              onChange={toggleDarkMode}
+              defaultChecked={darkMode}
+            />
+            <span className="slider" />
+          </label>
+        </DarkSwitcher>
+      </Header>
 
-      <Form hasError={!!inputError} onSubmit={handleAddRepository}>
+      <Title className={darkMode ? 'dark' : ''}>{textLanguage.dashTitle}</Title>
+      <Form
+        hasError={!!inputError}
+        onSubmit={handleAddRepository}
+        className={darkMode ? 'dark' : ''}
+      >
         <input
           value={newRepo}
           onChange={(e) => setNewRepo(e.target.value)}
           type="text"
-          placeholder="type the repository name"
+          placeholder={textLanguage.repoSearchPlaceHolder}
         />
-        <button type="submit">Search</button>
+        <button type="submit">{textLanguage.search}</button>
       </Form>
-
       {inputError && <Error>{inputError}</Error>}
-
-      <Repositories>
+      <Repositories className={darkMode ? 'dark' : ''}>
         {repositories.map((repository) => (
           <Link
             key={repository.full_name}
-            to={`/repositories/${repository.full_name}`}
+            to={`/repositories/${repository.full_name}?${new URLSearchParams(
+              window.location.search,
+            )}`}
           >
             <img
               src={repository.owner.avatar_url}
@@ -99,6 +182,7 @@ const Dashboard: React.FC = () => {
           </Link>
         ))}
       </Repositories>
+      <DarkMode isDark={darkMode} />
     </>
   );
 };
